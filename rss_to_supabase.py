@@ -45,29 +45,44 @@ for source, categories in rss_sources.items():
                 "category": category
             })
 
-# ✅ Load existing CSV to avoid duplicates
+# ✅ Load existing CSV
 if os.path.exists(csv_file):
     old_data = pd.read_csv(csv_file)
 else:
     old_data = pd.DataFrame(columns=["id","title","link","published","source","category"])
 
-# ✅ Convert to DataFrame
 df = pd.DataFrame(all_articles)
 
-# ✅ Filter new rows only
+# ✅ Filter only new rows
 new_rows = df[~df['id'].isin(old_data['id'])]
 
-# ✅ Save updated CSV
+# ✅ Save CSV with new data
 final_df = pd.concat([old_data, new_rows], ignore_index=True)
 final_df.to_csv(csv_file, index=False)
 
-print(f"✅ New articles added: {len(new_rows)}")
+print(f"✅ New articles found: {len(new_rows)}")
 
+# ✅ Insert into Supabase safely
 if len(new_rows) > 0:
-    try:
-        res = supabase.table("news").upsert(new_rows.to_dict(orient="records")).execute()
-        print("✅ Uploaded to Supabase")
-    except Exception as e:
-        print("❌ Error uploading:", e)
+    print(f"📤 Uploading {len(new_rows)} articles to Supabase...")
+
+    for _, row in new_rows.iterrows():
+        try:
+            supabase.table("news").upsert(
+                {
+                    "id": row["id"],
+                    "title": row["title"],
+                    "link": row["link"],
+                    "published": row["published"],
+                    "source": row["source"],
+                    "category": row["category"]
+                },
+                on_conflict="id"
+            ).execute()
+
+        except Exception as e:
+            print(f"⚠️ Duplicate/Skipped: {row['title'][:50]} | Error: {str(e)}")
+
+    print("✅ Supabase upload complete")
 else:
-    print("No new news to upload.")
+    print("✅ No new articles to upload")
