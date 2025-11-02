@@ -2,8 +2,8 @@ import feedparser, hashlib, pandas as pd, os, json
 from supabase import create_client
 from datetime import datetime
 
-SUPABASE_URL = "YOUR_URL"
-SUPABASE_KEY = "YOUR_KEY"
+SUPABASE_URL = "https://bwtgiawaktzohibphcgx.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3dGdpYXdha3R6b2hpYnBoY2d4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4Njk1NzUsImV4cCI6MjA3NjQ0NTU3NX0.vt01f-cymLgyCRcZ0d_zdv8Lu04yhiYg_F2kU08mX4c"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
