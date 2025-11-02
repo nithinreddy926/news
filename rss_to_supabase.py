@@ -18,7 +18,7 @@ if os.path.exists(csv_file):
     df_old = pd.read_csv(csv_file)
     existing_ids = set(df_old["id"])
 else:
-    df_old = pd.DataFrame()
+    df_old = pd.DataFrame(columns=["id","title","link","published","summary","source","category"])
     existing_ids = set()
 
 new_rows = []
@@ -32,6 +32,7 @@ for source, categories in rss_config.items():
         for item in feed.entries:
             uid = hashlib.sha256(item.link.encode()).hexdigest()
 
+            # Skip if exists in CSV cache
             if uid in existing_ids:
                 continue
 
@@ -47,19 +48,24 @@ for source, categories in rss_config.items():
 
             new_rows.append(row)
 
-# Save CSV
+# ✅ Remove duplicates inside this batch too
 df_new = pd.DataFrame(new_rows)
+df_new = df_new.drop_duplicates(subset=["id"], keep="first")
+
+# Save CSV
 df_final = pd.concat([df_old, df_new], ignore_index=True)
 df_final.to_csv(csv_file, index=False)
 
-print(f"✅ Added {len(new_rows)} new articles")
+print(f"✅ Added {len(df_new)} new articles")
 
 # Push to Supabase
-if new_rows:
+if len(df_new) > 0:
     try:
-        res = supabase.table("news").upsert(new_rows).execute()
+        res = supabase.table("news").upsert(df_new.to_dict(orient="records")).execute()
         print("✅ Uploaded to Supabase")
     except Exception as e:
         print("❌ Upload error:", e)
+else:
+    print("⚠️ No new articles to upload")
 
 print("Done ✅")
