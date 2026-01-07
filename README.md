@@ -25,6 +25,68 @@ A complete news scraping, storage, and semantic search pipeline that automatical
     └── rss_scraper.yml       # GitHub Actions workflow
 ```
 
+## 🔄 How It Works
+
+### Current Automated Workflow
+
+This project runs a fully automated pipeline that keeps your news search engine up-to-date:
+
+#### 1. **Automated RSS Scraping** (⏰ Every 6 hours)
+- **GitHub Actions** workflow runs automatically
+- Scrapes RSS feeds from sources defined in `rss_links.json`
+- Extracts: title, description, link, published date, source, category
+- Performs SHA256-based deduplication
+- Upserts new articles into **Supabase `news` table**
+- Also updates local `news_data.csv` cache
+
+#### 2. **Embedding Generation** (🧠 After scraping)
+- Pulls all articles from Supabase
+- Combines title + description into `combinedtext`
+- Generates 384-dimensional embeddings using **SentenceTransformer**
+- Model: `multi-qa-MiniLM-L6-cos-v1`
+- Saves embeddings to `news_embeddings.npy`
+- Saves metadata to `news_metadata.parquet`
+
+#### 3. **FAISS Index Building** (📁 After embeddings)
+- Loads embeddings from `.npy` file
+- Builds **FAISS IndexFlatIP** for fast similarity search
+- Normalizes vectors for cosine similarity
+- Saves index to `news_faiss.index`
+
+#### 4. **Ready for Search** (🔍 Instant queries)
+- Command-line: `python search_news.py "your query"`
+- Web interface: `streamlit run app.py`
+- Encodes query using same SentenceTransformer model
+- Performs top-k similarity search in FAISS
+- Returns ranked results with scores
+
+### Workflow Diagram
+
+```
+GitHub Actions (every 6 hours)
+        ↓
+  RSS Feeds → rss_to_supabase.py → Supabase (news table)
+        ↓
+  build_embeddings.py → news_embeddings.npy + news_metadata.parquet
+        ↓
+  build_faiss_index.py → news_faiss.index
+        ↓
+  search_news.py / app.py → Search Results
+```
+
+### Download Index Files
+
+Since embeddings and FAISS index are built on GitHub Actions runners, you need to:
+
+1. Go to **Actions** tab in GitHub
+2. Click on latest **"RSS scraper + index builder"** workflow run
+3. Scroll to **Artifacts** section
+4. Download `news-search-index.zip`
+5. Extract into your local project folder
+6. Now you can search locally!
+
+
+
 ## 🛠️ Setup
 
 ### 1. Install Dependencies
