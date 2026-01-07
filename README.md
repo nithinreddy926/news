@@ -18,6 +18,7 @@ A complete news scraping, storage, and semantic search pipeline that automatical
 ├── build_embeddings.py       # Generate embeddings from Supabase data
 ├── build_faiss_index.py      # Build FAISS index for fast search
 ├── search_news.py            # Search engine interface
+├── app.py                      # Streamlit web interface
 ├── requirements.txt          # Python dependencies
 ├── .env                      # Environment variables
 └── .github/workflows/
@@ -106,6 +107,30 @@ results = engine.search("AI developments", k=5)
 for r in results:
     print(f"{r['rank']}. {r['title']} (score: {r['score']:.4f})")
 ```
+
+### Step 5: Streamlit Web Interface (Optional - For Instant Search)
+
+For a better user experience with instant searches (no 17-second reload), use the Streamlit web interface:
+
+```bash
+streamlit run app.py
+```
+
+This will:
+- Load the model once (17s startup)
+- Open a web interface in your browser
+- Enable instant searches (<1 second)
+- Stay running for multiple searches
+
+**Features:**
+- 🔍 Search box with auto-complete
+- 🎯 Relevance scores with color coding
+- 📅 Metadata display (source, category, date)
+- 🔗 Direct article links
+- 📊 Statistics sidebar
+- ⚡ No model reloading between searches
+
+
 
 ## 🤖 GitHub Actions Automation
 
