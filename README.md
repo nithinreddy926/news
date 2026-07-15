@@ -245,10 +245,4 @@ python build_faiss_index.py  # Rebuild index
 - [ ] Multi-language support
 - [ ] Advanced filtering (date, source, category)
 
-## 📄 License
 
-MIT License
-
----
-
-**Created by Ransh Innovations**
