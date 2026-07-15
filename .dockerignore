@@ -1,0 +1,30 @@
+# Byte-compiled / cached files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment files
+.env
+.env.*
+*.env
+
+# Local data / artifacts (don't bake large data into image)
+news_embeddings.npy
+news_faiss.index
+news_metadata.parquet
+news_data.csv
+results.csv
+
+# Git / editor
+.git
+.gitignore
+.vscode/
+
+# Python virtual environments
+venv/
+ENV/
+
+# OS files
+.DS_Store
+Thumbs.db
